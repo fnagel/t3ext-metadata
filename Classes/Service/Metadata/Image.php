@@ -92,8 +92,8 @@ class Image extends \TYPO3\CMS\Core\Service\AbstractService {
 
 					// Parse metadata from EXIF GPS block
 					if (is_array($exif['GPS'])) {
-						$this->out['latitude'] = $this->parseGPSCoordinate($exif['GPS']['GPSLatitude'], $exif['GPS']['GPSLatitudeRef']);;
-						$this->out['longitude'] = $this->parseGPSCoordinate($exif['GPS']['GPSLongitude'], $exif['GPS']['GPSLongitudeRef']);;
+						$this->out['latitude'] = $this->parseGPSCoordinate($exif['GPS']['GPSLatitude'], $exif['GPS']['GPSLatitudeRef']);
+						$this->out['longitude'] = $this->parseGPSCoordinate($exif['GPS']['GPSLongitude'], $exif['GPS']['GPSLongitudeRef']);
 					}
 
 					// Parse metadata from EXIF EXIF block
@@ -108,21 +108,48 @@ class Image extends \TYPO3\CMS\Core\Service\AbstractService {
 
 							switch ($exifAttribute) {
 
-								case 'XResolution' :
+								case 'ApertureValue':
+									$parts = explode('/', $value);
+									$this->out['aperture_value'] = round(exp(($parts[0] / $parts[1]) * 0.51 * log(2)), 1);
+									break;
+								case 'ShutterSpeedValue':
+									$parts = explode('/', $value);
+									$this->out['shutter_speed_value'] = (int) pow(2, $parts[0] / $parts[1]);
+									break;
+								case 'ISOSpeedRatings':
+									$this->out['iso_speed_ratings'] = $value;
+									break;
+								case 'Model':
+									$this->out['camera_model'] = $value;
+									break;
+								case 'ExposureTime':
+									$this->out['exposure_time'] = strtotime($value);
+									break;
+								case 'Flash':
+									$this->out['flash'] = $value;
+									break;
+								case 'MeteringMode':
+									$this->out['metering_mode'] = $value;
+									break;
+								case 'ColorSpace':
+									$this->out['color_space'] = $this->getColorSpace($value);
+									break;
+								case 'XResolution':
 									$this->out['horizontal_resolution'] = $this->fractionToInt($value);
 									break;
-								case 'YResolution' :
+								case 'YResolution':
 									$this->out['vertical_resolution'] = $this->fractionToInt($value);
 									break;
-								case 'Subject' :
+								case 'Subject':
 									$this->out['description'] = $value;
 									break;
-								case 'DateTime' :
+								case 'DateTime':
 									$this->out['modification_date'] = strtotime($value);
 									break;
-								case 'Software' :
+								case 'Software':
 									$this->out['creator_tool'] = $value;
 									break;
+
 							}
 						}
 					}
@@ -208,6 +235,7 @@ class Image extends \TYPO3\CMS\Core\Service\AbstractService {
 
 		$colorSpaceToName = array(
 			'0' => 'grey',
+			'1' => 'sRGB',
 			'2' => 'RGB',
 			'3' => 'RGB',
 			'4' => 'grey',
