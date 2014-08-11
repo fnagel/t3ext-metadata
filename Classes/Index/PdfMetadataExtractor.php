@@ -1,5 +1,5 @@
 <?php
-namespace Fab\Metadata\Service\Metadata;
+namespace Fab\Metadata\Index;
 
 /**
  * This file is part of the TYPO3 CMS project.
@@ -14,27 +14,96 @@ namespace Fab\Metadata\Service\Metadata;
  * The TYPO3 project - inspiring people to share!
  */
 
-/**
- * Add auto-loader for Zend PDF library
- */
-use TYPO3\CMS\Core\Service\AbstractService;
+use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\Index\ExtractorInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Fab\Metadata\Utility\Unicode;
 
+// Add auto-loader for Zend PDF library
 require_once(\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('metadata') . '/Resources/Private/ZendPdf/vendor/autoload.php');
 
 /**
- * @package metadata
- * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
+ * Service dealing with metadata extraction of images.
  */
-class Pdf extends AbstractService {
+class PdfMetadataExtractor implements ExtractorInterface {
 
 	/**
-	 * Same as class name
+	 * Returns an array of supported file types;
+	 * An empty array indicates all filetypes
 	 *
-	 * @var string
+	 * @return array
 	 */
-	protected $prefixId = 'tx_metadata_service_metadata_pdf';
+	public function getFileTypeRestrictions() {
+		return array();
+	}
+
+	/**
+	 * Get all supported DriverClasses
+	 * Since some extractors may only work for local files, and other extractors
+	 * are especially made for grabbing data from remote.
+	 * Returns array of string with driver names of Drivers which are supported,
+	 * If the driver did not register a name, it's the classname.
+	 * empty array indicates no restrictions
+	 *
+	 * @return array
+	 */
+	public function getDriverRestrictions() {
+		return array();
+	}
+
+	/**
+	 * Returns the data priority of the extraction Service.
+	 * Defines the precedence of Data if several extractors
+	 * extracted the same property.
+	 * Should be between 1 and 100, 100 is more important than 1
+	 *
+	 * @return integer
+	 */
+	public function getPriority() {
+		return 15;
+	}
+
+	/**
+	 * Returns the execution priority of the extraction Service
+	 * Should be between 1 and 100, 100 means runs as first service, 1 runs at last service
+	 *
+	 * @return integer
+	 */
+	public function getExecutionPriority() {
+		return 15;
+	}
+
+	/**
+	 * Checks if the given file can be processed by this Extractor
+	 *
+	 * @param File $file
+	 * @return boolean
+	 */
+	public function canProcess(File $file) {
+		return TRUE;
+	}
+
+	/**
+	 * The actual processing TASK
+	 * Should return an array with database properties for sys_file_metadata to write
+	 *
+	 * @param File $file
+	 * @param array $previousExtractedData optional, contains the array of already extracted data
+	 * @return array
+	 */
+	public function extractMetaData(File $file, array $previousExtractedData = array()) {
+		$metadata = array();
+		$title = $file->getProperty('title');
+		if (empty($title)) {
+			$metadata = array('title' => 'foo');
+		}
+		return $metadata;
+	}
+
+
+	////////////////////////////////////////////////////////
+	// OLD CODE BELOW TO BE SORTED OUT
+	////////////////////////////////////////////////////////
 
 	/**
 	 * Performs the service processing
@@ -127,5 +196,3 @@ class Pdf extends AbstractService {
 		return $pdfDateTime;
 	}
 }
-
-?>
