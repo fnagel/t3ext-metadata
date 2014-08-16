@@ -28,6 +28,15 @@ require_once(\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('metada
 class PdfMetadataExtractor implements ExtractorInterface {
 
 	/**
+	 * Allowed file extensions
+	 *
+	 * @var array
+	 */
+	protected $allowedFileExtensions = array(
+		'pdf',
+	);
+
+	/**
 	 * Returns an array of supported file types;
 	 * An empty array indicates all filetypes
 	 *
@@ -60,7 +69,7 @@ class PdfMetadataExtractor implements ExtractorInterface {
 	 * @return integer
 	 */
 	public function getPriority() {
-		return 15;
+		return 16;
 	}
 
 	/**
@@ -70,7 +79,7 @@ class PdfMetadataExtractor implements ExtractorInterface {
 	 * @return integer
 	 */
 	public function getExecutionPriority() {
-		return 15;
+		return 16;
 	}
 
 	/**
@@ -80,7 +89,7 @@ class PdfMetadataExtractor implements ExtractorInterface {
 	 * @return boolean
 	 */
 	public function canProcess(File $file) {
-		return TRUE;
+		return in_array($file->getExtension(), $this->allowedFileExtensions);
 	}
 
 	/**
@@ -89,64 +98,46 @@ class PdfMetadataExtractor implements ExtractorInterface {
 	 *
 	 * @param File $file
 	 * @param array $previousExtractedData optional, contains the array of already extracted data
+	 *
 	 * @return array
 	 */
 	public function extractMetaData(File $file, array $previousExtractedData = array()) {
 		$metadata = array();
-		$title = $file->getProperty('title');
-		if (empty($title)) {
-			$metadata = array('title' => 'foo');
-		}
-		return $metadata;
+
+		$this->extractPdfMetaData($metadata, $file->getForLocalProcessing());
+
+		return \Fab\Metadata\Utility\Unicode::convert($metadata);
 	}
 
-
-	////////////////////////////////////////////////////////
-	// OLD CODE BELOW TO BE SORTED OUT
-	////////////////////////////////////////////////////////
-
 	/**
-	 * Performs the service processing
+	 * Extract PDF meta data
 	 *
-	 * @return boolean
+	 * @param array $metadata
+	 * @param string $filename
+	 *
+	 * @return void
 	 */
-	public function process() {
+	public function extractPdfMetaData($metadata, $filename) {
+		try {
+			$pdf = new \ZendPdf\PdfDocument($filename, TRUE);
 
-		$this->out = array();
-
-		if ($inputFile = $this->getInputFile()) {
-
-			try {
-
-				$pdf = \ZendPdf\PdfDocument::load($inputFile);
-
-				if (is_object($pdf)) {
-
-					$this->out['title'] = $pdf->properties['Title'];
-					$this->out['creator'] = $pdf->properties['Author'];
-					$this->out['description'] = $pdf->properties['Subject'];
-					$this->out['keywords'] = $pdf->properties['Keywords'];
-					$this->out['creator_tool'] = $pdf->properties['Creator'];
-					$this->out['creation_date'] = $this->parsePdfDate($pdf->properties['CreationDate']);
-					$this->out['modification_date'] = $this->parsePdfDate($pdf->properties['ModDate']);
-
-					$this->out = Unicode::convert($this->out);
-				}
-			} catch (\Exception $e) {
-
-				/** @var $loggerManager \TYPO3\CMS\Core\Log\LogManager */
-				$loggerManager = GeneralUtility::makeInstance('TYPO3\CMS\Core\Log\LogManager');
-
-				/** @var $logger \TYPO3\CMS\Core\Log\Logger */
-				$message = sprintf('Metadata: PDF indexation raised an exception %s.', $e->getMessage());
-				$loggerManager->getLogger(get_class($this))->warning($message);
+			if (is_object($pdf)) {
+				$metadata['title'] = $pdf->properties['Title'];
+				$metadata['creator'] = $pdf->properties['Author'];
+				$metadata['description'] = $pdf->properties['Subject'];
+				$metadata['keywords'] = $pdf->properties['Keywords'];
+				$metadata['creator_tool'] = $pdf->properties['Creator'];
+				$metadata['creation_date'] = $this->parsePdfDate($pdf->properties['CreationDate']);
+				$metadata['modification_date'] = $this->parsePdfDate($pdf->properties['ModDate']);
 			}
+		} catch (\Exception $e) {
+			/** @var $loggerManager \TYPO3\CMS\Core\Log\LogManager */
+			$loggerManager = GeneralUtility::makeInstance('TYPO3\CMS\Core\Log\LogManager');
 
-		} else {
-			$this->errorPush(T3_ERR_SV_NO_INPUT, 'No or empty input.');
+			/** @var $logger \TYPO3\CMS\Core\Log\Logger */
+			$message = sprintf('Metadata: PDF indexation raised an exception %s.', $e->getMessage());
+			$loggerManager->getLogger(get_class($this))->warning($message);
 		}
-
-		return $this->getLastError();
 	}
 
 	/**
@@ -158,10 +149,12 @@ class PdfMetadataExtractor implements ExtractorInterface {
 	 */
 	protected function parsePdfDate($pdfDate) {
 
-		// Remove starting D: if exists
-		$pdfDate = preg_replace("/D:/", "", $pdfDate);
+		// Remove starting D: if
+		// TODO: what is this? A hack for windows?
+		$pdfDate = preg_replace('/D:/', '', $pdfDate);
 
-		// Split the PDF Date into two parts if a timezone indication exists (Z = time is indicated in UTC)
+		// Split the PDF Date into two parts if a timezone indication exists
+		// (Z = time is indicated in UTC)
 		$pdfDateArray = preg_split("/(?=[-+Z]\d{2}'\d{2}')/", $pdfDate, -1);
 
 		// Check if timezone indication exists
@@ -176,6 +169,7 @@ class PdfMetadataExtractor implements ExtractorInterface {
 				case '+':
 					$timeOffset = '+' . $timeOffset;
 					break;
+				default:
 			}
 		}
 
