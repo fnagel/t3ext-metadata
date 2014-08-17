@@ -17,10 +17,11 @@ namespace Fab\Metadata\Index;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Index\ExtractorInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use \TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use Fab\Metadata\Utility\Unicode;
 
 // Add auto-loader for Zend PDF library
-require_once(\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('metadata') . '/Resources/Private/ZendPdf/vendor/autoload.php');
+require_once(ExtensionManagementUtility::extPath('metadata') . '/Resources/Private/ZendPdf/vendor/autoload.php');
 
 /**
  * Service dealing with metadata extraction of images.
@@ -106,7 +107,7 @@ class PdfMetadataExtractor implements ExtractorInterface {
 
 		$this->extractPdfMetaData($metadata, $file->getForLocalProcessing());
 
-		return \Fab\Metadata\Utility\Unicode::convert($metadata);
+		return Unicode::convert($metadata);
 	}
 
 	/**
@@ -117,18 +118,50 @@ class PdfMetadataExtractor implements ExtractorInterface {
 	 *
 	 * @return void
 	 */
-	public function extractPdfMetaData($metadata, $filename) {
+	public function extractPdfMetaData(&$metadata, $filename) {
 		try {
-			$pdf = new \ZendPdf\PdfDocument($filename, TRUE);
+			$pdf = new \ZendPdf\PdfDocument($filename, NULL, TRUE);
 
-			if (is_object($pdf)) {
-				$metadata['title'] = $pdf->properties['Title'];
-				$metadata['creator'] = $pdf->properties['Author'];
-				$metadata['description'] = $pdf->properties['Subject'];
-				$metadata['keywords'] = $pdf->properties['Keywords'];
-				$metadata['creator_tool'] = $pdf->properties['Creator'];
-				$metadata['creation_date'] = $this->parsePdfDate($pdf->properties['CreationDate']);
-				$metadata['modification_date'] = $this->parsePdfDate($pdf->properties['ModDate']);
+			$metadata['pages'] = count($pdf->pages);
+
+			foreach ($pdf->properties as $detail => $value) {
+
+				switch ($detail) {
+					case 'Title':
+						$metadata['title'] = $value;
+						break;
+
+					case 'Author':
+						$metadata['creator'] = $value;
+						break;
+
+					case 'Subject':
+						$metadata['description'] = $value;
+						break;
+
+					case 'Keywords':
+						$metadata['keywords'] = $value;
+						break;
+
+					case 'Pages':
+						$metadata['pages'] = (int) $value;
+						break;
+
+					case 'Producer':
+					case 'Creator':
+						$metadata['creator_tool'] = $value;
+						break;
+
+					case 'CreationDate':
+						$metadata['creation_date'] = $this->parsePdfDate($value);
+						break;
+
+					case 'ModDate':
+						$metadata['modification_date'] = $this->parsePdfDate($value);
+						break;
+
+					default:
+				}
 			}
 		} catch (\Exception $e) {
 			/** @var $loggerManager \TYPO3\CMS\Core\Log\LogManager */

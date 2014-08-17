@@ -17,6 +17,7 @@ namespace Fab\Metadata\Index;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\Index\ExtractorInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Fab\Metadata\Utility\Unicode;
 
 /**
  * Service dealing with metadata extraction of images.
@@ -177,7 +178,7 @@ class ImageMetadataExtractor implements ExtractorInterface {
 		$this->extractExifMetaData($metadata, $filename);
 		$this->extractIptcMetaData($metadata, $info);
 
-		return \Fab\Metadata\Utility\Unicode::convert($metadata);
+		return Unicode::convert($metadata);
 	}
 
 	/**
@@ -216,8 +217,6 @@ class ImageMetadataExtractor implements ExtractorInterface {
 	 *
 	 * @param $metadata
 	 * @param $exif
-	 *
-	 * @todo check all properties for extisting fields in DB
 	 *
 	 * @return void
 	 */
