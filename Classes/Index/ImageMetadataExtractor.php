@@ -199,11 +199,12 @@ class ImageMetadataExtractor implements ExtractorInterface {
 			return;
 		}
 
-		$exif = @exif_read_data($filename, 0, TRUE);
+		$data = @exif_read_data($filename, 0, TRUE);
 
-		if (is_array($exif['EXIF'])) {
-			if (is_array($exif['IFD0'])) {
-				$exif = array_merge($exif['IFD0'], $exif);
+		if (is_array($data['EXIF'])) {
+			$exif = $data['EXIF'];
+			if (is_array($data['IFD0'])) {
+				$exif = array_merge($data['IFD0'], $exif);
 			}
 
 			$this->processExifData($metadata, $exif);
@@ -248,6 +249,7 @@ class ImageMetadataExtractor implements ExtractorInterface {
 				case 'ImageCreated':
 				case 'CreateDate':
 				case 'DateTimeOriginal':
+				case 'DateTimeDigitized':
 					$metadata['content_creation_date'] = strtotime($value);
 					break;
 
@@ -269,17 +271,23 @@ class ImageMetadataExtractor implements ExtractorInterface {
 					break;
 
 				case 'ApertureValue':
+				case 'MaxApertureValue':
 					$parts = explode('/', $value);
 					$metadata['aperture_value'] = round(exp(($parts[0] / $parts[1]) * 0.51 * log(2)), 1);
 					break;
 
 				case 'ShutterSpeedValue':
 					$parts = explode('/', $value);
-					$metadata['shutter_speed_value'] = (int) pow(2, $parts[0] / $parts[1]);
+					$metadata['shutter_speed_value'] = '1/' . (int) pow(2, $parts[0] / $parts[1]);
 					break;
 
 				case 'ISOSpeedRatings':
 					$metadata['iso_speed_ratings'] = $value;
+					break;
+
+				case 'FocalLength':
+					$parts = explode('/', $value);
+					$metadata['focal_length'] = $parts[0] / $parts[1];
 					break;
 
 				case 'CameraModel':
@@ -287,16 +295,12 @@ class ImageMetadataExtractor implements ExtractorInterface {
 					$metadata['camera_model'] = $value;
 					break;
 
-				case 'ExposureTime':
-					$metadata['exposure_time'] = strtotime($value);
-					break;
-
 				case 'Flash':
-					$metadata['flash'] = $value;
+					$metadata['flash'] = (int) $value;
 					break;
 
 				case 'MeteringMode':
-					$metadata['metering_mode'] = $value;
+					$metadata['metering_mode'] = (int) $value;
 					break;
 
 				case 'ColorSpace':
