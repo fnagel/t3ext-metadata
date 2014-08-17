@@ -35,8 +35,16 @@
 				<target>Blitz</target>
 			</trans-unit>
 			<trans-unit id="sys_file_metadata.metering_mode">
-					<source>Metering mode</source>
+				<source>Metering mode</source>
 				<target>Messverfahren</target>
+			</trans-unit>
+			<trans-unit id="sys_file_metadata.horizontal_resolution">
+				<source>Horizontal resolution (dpi)</source>
+				<target>Horizontale Auflösung (dpi)</target>
+			</trans-unit>
+			<trans-unit id="sys_file_metadata.vertical_resolution">
+				<source>Vertical resolution (dpi)</source>
+				<target>Vertikale Auflösung (dpi)</target>
 			</trans-unit>
 		</body>
 	</file>

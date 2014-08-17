@@ -18,7 +18,8 @@ $tca = array(
 				--palette--;;23;;,
 				--palette--;LLL:EXT:filemetadata/Resources/Private/Language/locallang_tca.xlf:palette.geo_location;40;;,
 				--palette--;;30;;,
-				--palette--;LLL:EXT:filemetadata/Resources/Private/Language/locallang_tca.xlf:palette.metrics;50;;'
+				--palette--;LLL:EXT:filemetadata/Resources/Private/Language/locallang_tca.xlf:palette.metrics;50;;,
+				--palette--;;51;;'
 		),
 	),
 	'palettes' => array(
@@ -29,6 +30,7 @@ $tca = array(
 			'canNotCollapse' => '1'
 		),
 		'23' => array('showitem' => 'camera_model, flash, metering_mode', 'canNotCollapse' => '1'),
+		'51' => array('showitem' => 'horizontal_resolution, vertical_resolution', 'canNotCollapse' => '1'),
 	),
 	'columns' => array(
 		'copyright_notice' => array(
@@ -38,7 +40,8 @@ $tca = array(
 			'label' => 'LLL:EXT:metadata/Resources/Private/Language/locallang.xlf:sys_file_metadata.copyright_notice',
 			'config' => array(
 				'type' => 'input',
-				'size' => 30,
+				'size' => 40,
+				'max' => '255',
 				'eval' => 'trim'
 			),
 		),
@@ -167,6 +170,34 @@ $tca = array(
 					array('Other', '255'),
 					array('No Flash', '0'),
 				),
+				'readOnly' => TRUE,
+			),
+		),
+		'horizontal_resolution' => array(
+			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'label' => 'LLL:EXT:metadata/Resources/Private/Language/locallang.xlf:sys_file_metadata.horizontal_resolution',
+			'config' => array(
+				'type' => 'input',
+				'size' => '10',
+				'max' => '8',
+				'eval' => 'int',
+				'default' => '0',
+				'readOnly' => TRUE,
+			),
+		),
+		'vertical_resolution' => array(
+			'exclude' => 1,
+			'l10n_mode' => 'exclude',
+			'l10n_display' => 'defaultAsReadonly',
+			'label' => 'LLL:EXT:metadata/Resources/Private/Language/locallang.xlf:sys_file_metadata.vertical_resolution',
+			'config' => array(
+				'type' => 'input',
+				'size' => '10',
+				'max' => '8',
+				'eval' => 'int',
+				'default' => '0',
 				'readOnly' => TRUE,
 			),
 		),

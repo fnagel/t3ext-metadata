@@ -30,6 +30,12 @@
 			<trans-unit id="sys_file_metadata.metering_mode">
 				<source>Metering mode</source>
 			</trans-unit>
+			<trans-unit id="sys_file_metadata.horizontal_resolution">
+				<source>Horizontal resolution (dpi)</source>
+			</trans-unit>
+			<trans-unit id="sys_file_metadata.vertical_resolution">
+				<source>Vertical resolution (dpi)</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
