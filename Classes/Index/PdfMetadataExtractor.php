@@ -21,6 +21,7 @@ use \TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use Fab\Metadata\Utility\Unicode;
 
 // Add auto-loader for Zend PDF library
+// TODO Use composer install on extension installation?
 require_once(ExtensionManagementUtility::extPath('metadata') . '/Resources/Private/ZendPdf/vendor/autoload.php');
 
 /**
