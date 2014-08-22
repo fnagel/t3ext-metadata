@@ -15,14 +15,13 @@ namespace Fab\Metadata\Index;
  */
 
 use TYPO3\CMS\Core\Resource\File;
-use TYPO3\CMS\Core\Resource\Index\ExtractorInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Fab\Metadata\Utility\Unicode;
 
 /**
  * Service dealing with metadata extraction of images.
  */
-class ImageMetadataExtractor implements ExtractorInterface {
+class ImageMetadataExtractor extends AbstractExtractor {
 
 	/**
 	 * Allowed image types
@@ -71,33 +70,6 @@ class ImageMetadataExtractor implements ExtractorInterface {
 		'4' => 'grey',
 		'6' => 'RGB',
 	);
-
-	/**
-	 * Returns an array of supported file types;
-	 * An empty array indicates all filetypes
-	 *
-	 * @todo Implement this. Seems unused by core at the moment.
-	 * Perhaps combine this with $allowedFileExtensions and canProcess()
-	 *
-	 * @return array
-	 */
-	public function getFileTypeRestrictions() {
-		return array();
-	}
-
-	/**
-	 * Get all supported DriverClasses
-	 * Since some extractors may only work for local files, and other extractors
-	 * are especially made for grabbing data from remote.
-	 * Returns array of string with driver names of Drivers which are supported,
-	 * If the driver did not register a name, it's the classname.
-	 * empty array indicates no restrictions
-	 *
-	 * @return array
-	 */
-	public function getDriverRestrictions() {
-		return array();
-	}
 
 	/**
 	 * Returns the data priority of the extraction Service.
