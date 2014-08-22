@@ -123,8 +123,7 @@ $tca = array(
 				'type' => 'select',
 				'default' => '-1',
 				'items' => array(
-					array('', '-1'),
-					array('No Flash', '0'),
+					array('', '0'),
 					array('Flash', '1'),
 					array('Flash, strobe return light not detected', '5'),
 					array('Flash, strobe return light detected', '7'),
@@ -160,7 +159,7 @@ $tca = array(
 				'default' => '-1',
 				'itemListStyle' => 'width:200px;',
 				'items' => array(
-					array('', '-1'),
+					array('', '0'),
 					array('Average', '1'),
 					array('Center Weighted Average', '2'),
 					array('Spot', '3'),
@@ -168,7 +167,6 @@ $tca = array(
 					array('Pattern', '5'),
 					array('Partial', '6'),
 					array('Other', '255'),
-					array('No Flash', '0'),
 				),
 				'readOnly' => TRUE,
 			),
