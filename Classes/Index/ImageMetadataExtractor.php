@@ -45,16 +45,6 @@ class ImageMetadataExtractor implements ExtractorInterface {
 	);
 
 	/**
-	 * @var bool
-	 */
-	protected $exifFunctionsAvailable = FALSE;
-
-	/**
-	 * @var bool
-	 */
-	protected $iptcFunctionsAvailable = FALSE;
-
-	/**
 	 * @var array
 	 */
 	protected $iptcAttributesMapping = array(
@@ -81,17 +71,6 @@ class ImageMetadataExtractor implements ExtractorInterface {
 		'4' => 'grey',
 		'6' => 'RGB',
 	);
-
-	/**
-	 * Constructor
-	 *
-	 * @return \Fab\Metadata\Index\ImageMetadataExtractor
-	 */
-	public function __construct() {
-		$this->exifFunctionsAvailable = (function_exists('exif_imagetype') && function_exists('exif_read_data'));
-		$this->iptcFunctionsAvailable = function_exists('iptcparse');
-	}
-
 
 	/**
 	 * Returns an array of supported file types;
@@ -190,7 +169,7 @@ class ImageMetadataExtractor implements ExtractorInterface {
 	 * @return void
 	 */
 	protected function extractExifMetaData(&$metadata, $filename) {
-		if ($this->exifFunctionsAvailable === FALSE) {
+		if (!$this->isExifExtensionAvailable()) {
 			GeneralUtility::devLog('Function exif_imagetype() and exif_read_data() are not available.', 2);
 			return;
 		}
@@ -351,7 +330,7 @@ class ImageMetadataExtractor implements ExtractorInterface {
 	 * @return void
 	 */
 	protected function extractIptcMetaData(&$metadata, $info) {
-		if ($this->iptcFunctionsAvailable === FALSE) {
+		if (!$this->isIptcExtensionAvailable()) {
 			GeneralUtility::devLog('Function iptcparse() is not available.', 2);
 			return;
 		}
@@ -379,6 +358,24 @@ class ImageMetadataExtractor implements ExtractorInterface {
 		$imageType = exif_imagetype($filename);
 
 		return in_array($imageType, $this->allowedImageTypes);
+	}
+
+	/**
+	 * Check if needed exif method are available in PHP
+	 *
+	 * @return bool
+	 */
+	protected function isExifExtensionAvailable() {
+		return (function_exists('exif_imagetype') && function_exists('exif_read_data'));
+	}
+
+	/**
+	 * Check if needed iptc method are available in PHP
+	 *
+	 * @return bool
+	 */
+	protected function isIptcExtensionAvailable() {
+		return function_exists('iptcparse');
 	}
 
 	/**
