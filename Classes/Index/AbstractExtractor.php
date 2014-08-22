@@ -56,4 +56,16 @@ abstract class AbstractExtractor implements ExtractorInterface {
 	public function canProcess(File $file) {
 		return TRUE;
 	}
+
+	/**
+	 * Returns a logger instance
+	 *
+	 * @return \TYPO3\CMS\Core\Log\Logger
+	 */
+	protected function getLogger() {
+		/** @var $loggerManager \TYPO3\CMS\Core\Log\LogManager */
+		$loggerManager = GeneralUtility::makeInstance('TYPO3\CMS\Core\Log\LogManager');
+
+		return $loggerManager->getLogger(__CLASS__);
+	}
 }

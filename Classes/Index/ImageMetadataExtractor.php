@@ -15,7 +15,6 @@ namespace Fab\Metadata\Index;
  */
 
 use TYPO3\CMS\Core\Resource\File;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Fab\Metadata\Utility\Unicode;
 
 /**
@@ -142,7 +141,7 @@ class ImageMetadataExtractor extends AbstractExtractor {
 	 */
 	protected function extractExifMetaData(&$metadata, $filename) {
 		if (!$this->isExifExtensionAvailable()) {
-			GeneralUtility::devLog('Function exif_imagetype() and exif_read_data() are not available.', 2);
+			$this->getLogger()->warning('Function exif_imagetype() and exif_read_data() are not available.');
 			return;
 		}
 
@@ -303,7 +302,7 @@ class ImageMetadataExtractor extends AbstractExtractor {
 	 */
 	protected function extractIptcMetaData(&$metadata, $info) {
 		if (!$this->isIptcExtensionAvailable()) {
-			GeneralUtility::devLog('Function iptcparse() is not available.', 2);
+			$this->getLogger()->warning('Function iptcparse() is not available.');
 			return;
 		}
 

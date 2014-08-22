@@ -15,7 +15,6 @@ namespace Fab\Metadata\Index;
  */
 
 use TYPO3\CMS\Core\Resource\File;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use \TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use Fab\Metadata\Utility\Unicode;
 
@@ -140,12 +139,8 @@ class PdfMetadataExtractor extends AbstractExtractor {
 				}
 			}
 		} catch (\Exception $e) {
-			/** @var $loggerManager \TYPO3\CMS\Core\Log\LogManager */
-			$loggerManager = GeneralUtility::makeInstance('TYPO3\CMS\Core\Log\LogManager');
-
-			/** @var $logger \TYPO3\CMS\Core\Log\Logger */
 			$message = sprintf('Metadata: PDF indexation raised an exception %s.', $e->getMessage());
-			$loggerManager->getLogger(get_class($this))->warning($message);
+			$this->getLogger()->warning($message);
 		}
 	}
 
